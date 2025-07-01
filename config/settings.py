@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tracker',
+    'tracker', #'tracker' Register the model, Allows migrations to run, Connects admin, views, and templates
 ]
 
 MIDDLEWARE = [

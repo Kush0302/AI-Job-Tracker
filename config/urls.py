@@ -15,8 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include # include lets you import URLs from another app(tracker)
+from tracker import views # import your job_list view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.job_list, name='home'), # show job list at root URL
+    path('', include('tracker.urls')), #'' means "for the root URL and everything under it"
 ]

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job Applications</title>
+</head>
+<body>
+    <h1>Job Applications</h1>
+
+    {% if jobs %} <!--checks if jobs exist-->
+        <ul>
+            {% for job in jobs %} <!-- loops through your database records -->
+
+                <li>
+                    <strong>{{ job.company_name }}</strong> — <!--outputs job details--> 
+                    {{ job.position }} —
+                    {{ job.application_date }} —
+                    {{ job.status }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No job applications found.</p>
+    {% endif %}
+</body>
+</html>

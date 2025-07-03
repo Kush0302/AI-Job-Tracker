@@ -1,0 +1,36 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Add Job{% endblock %}
+
+{% block content %}
+  <h2 class="mb-4">Add New Job</h2>
+
+  <form method="POST">
+    {% csrf_token %}
+    {% load widget_tweaks %}
+
+    <div class="mb-3">
+      <label for="id_company_name" class="form-label">Company Name</label>
+      {{ form.company_name|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_position" class="form-label">Position</label>
+      {{ form.position|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_application_date" class="form-label">Application Date</label>
+      {{ form.application_date|add_class:"form-control" }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_status" class="form-label">Status</label>
+      {{ form.status|add_class:"form-select" }}
+    </div>
+
+    <button type="submit" class="btn btn-success">Save Job</button>
+  </form>
+
+  <a href="{% url 'job_list' %}" class="btn btn-link mt-3">← Back to Job List</a>
+{% endblock %}

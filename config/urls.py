@@ -21,5 +21,5 @@ from tracker import views # import your job_list view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.job_list, name='home'), # show job list at root URL
-    path('', include('tracker.urls')), #'' means "for the root URL and everything under it"
+    path('jobs/', include('tracker.urls')), #'' means "for the root URL and everything under it"
 ]

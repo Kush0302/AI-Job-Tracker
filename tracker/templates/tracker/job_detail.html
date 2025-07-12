@@ -1,0 +1,13 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+  <h2>Job Details</h2>
+  <ul>
+    <li><strong>Company:</strong> {{ job.company_name }}</li>
+    <li><strong>Position:</strong> {{ job.position }}</li>
+    <li><strong>Status:</strong> {{ job.status }}</li>
+    <li><strong>Date Applied:</strong> {{ job.application_date }}</li>
+    <li><strong>Notes:</strong> {{ job.notes }}</li>
+  </ul>
+  <a href="{% url 'edit_job' job.pk %}" class="btn btn-warning">Edit Job</a>
+{% endblock %}

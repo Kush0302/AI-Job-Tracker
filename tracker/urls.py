@@ -6,4 +6,6 @@ from .import views
 #name='job_list' Useful for linking to this view later using Django’s template tags
 urlpatterns=[path('', views.job_list, name='job_list'),
              path('add/', views.add_job, name='add_job'),
-             ]
+             path('job/<int:pk>/', views.job_detail, name='job_detail'),
+             path('job/<int:pk>/edit/', views.edit_job, name='edit_job'),
+            ]

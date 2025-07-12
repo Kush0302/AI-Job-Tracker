@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.job_list, name='home'), # show job list at root URL
     path('jobs/', include('tracker.urls')), #'' means "for the root URL and everything under it"
+    path('', include('tracker.urls')), 
 ]

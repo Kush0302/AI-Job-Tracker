@@ -31,7 +31,7 @@ class AddJobForm(forms.ModelForm):
         company=cleaned_data.get('company_name')
         position=cleaned_data.get('position')
 
-        if JobApplication.objects.filter(company_name=company, position=position).exists():
+        if JobApplication.objects.filter(company_name=company, position=position).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("You already added this job application.")
         
         return cleaned_data

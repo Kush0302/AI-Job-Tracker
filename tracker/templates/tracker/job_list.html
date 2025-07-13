@@ -5,6 +5,36 @@
 {% block content %}
   <h1 class="mb-4">Job Applications</h1> 
 
+  <!--Filter + Sort Form-->
+<!--Starts a form using GET method, so filter/sort values show up in the URL (useful for sharing/bookmarking)-->
+<form method="get" class="form-inline mb-3">
+
+<!--Adds a dropdown (<select>) to filter jobs based on status-->
+  <label for="status">Filter by Status:</label>
+  <select name="status" class="form-control mx-2">
+
+<!--Loops through each status option as a dropdown entry-->
+    {% for status in status_options %}
+
+<!--If the current status matches the selected one, it adds selected to highlight it in the dropdown-->
+      <option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status }}</option>
+    {% endfor %}
+  </select>
+  
+<!--Adds another dropdown to choose how to sort the list (e.g., by date or company name)-->
+  <label for="sort">Sort by:</label>
+  <select name="sort" class="form-control mx-2">
+
+<!--Highlights the current sort option using selected-->
+    <option value="application_date" {% if selected_sort == "application_date" %}selected{% endif %}>Date</option>
+    <option value="company_name" {% if selected_sort == "company_name" %}selected{% endif %}>Company</option>
+  </select>
+  
+<!--A button to apply the selected filter/sort — it submits the form and reloads the page with filtered data-->  
+  <button type="submit" class="btn btn-primary mt-2">Apply</button>
+</form>
+
+
   {% if jobs %}
     <div class="table-responsive">
       <table class="table table-bordered table-striped">

@@ -8,6 +8,10 @@
   <!--Filter + Sort Form-->
 <!--Starts a form using GET method, so filter/sort values show up in the URL (useful for sharing/bookmarking)-->
 <form method="get" class="form-inline mb-3">
+  
+<!-- Search box -->
+  <input type="text" name="search" placeholder="Search jobs..." 
+         value="{{ request.GET.search }}" class="form-control mx-2 mb-2" />
 
 <!--Adds a dropdown (<select>) to filter jobs based on status-->
   <label for="status">Filter by Status:</label>
@@ -33,7 +37,6 @@
 <!--A button to apply the selected filter/sort — it submits the form and reloads the page with filtered data-->  
   <button type="submit" class="btn btn-primary mt-2">Apply</button>
 </form>
-
 
   {% if jobs %}
     <div class="table-responsive">

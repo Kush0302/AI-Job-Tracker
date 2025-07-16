@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404 #render() combines a template with context data and returns an HTML response to the browser
-
+from django.db.models import Q #Imports Django’s Q object, which allows combining multiple filter conditions with [OR] logic
 from .models import JobApplication
 from .forms import AddJobForm
 from django.contrib import messages
@@ -7,6 +7,7 @@ from django.contrib import messages
 def job_list(request): #request is a built-in object that represents the HTTP request sent by the browser
     status_filter=request.GET.get('status')
     sort_by=request.GET.get('sort', 'application_date')  #default sorting
+    search_query=request.GET.get('search', '')
 
 
     jobs=JobApplication.objects.all()
@@ -14,6 +15,14 @@ def job_list(request): #request is a built-in object that represents the HTTP re
 #If a specific status is selected (not "All"), the queryset is filtered to show only jobs with that status
     if status_filter and status_filter!='All':
         jobs=jobs.filter(status=status_filter)
+
+#Search Query 
+    if search_query:
+        jobs = jobs.filter(
+        Q(company_name__icontains=search_query) |
+        Q(position__icontains=search_query) #We use  __icontains to enable partial and case-insensitive matching
+    )
+
 
 #If the sorting choice is valid, it sorts the jobs accordingly
     if sort_by in['application_date', 'company_name']:

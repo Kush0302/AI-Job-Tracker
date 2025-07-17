@@ -8,4 +8,5 @@ urlpatterns=[path('', views.job_list, name='job_list'),
              path('add/', views.add_job, name='add_job'),
              path('job/<int:pk>/', views.job_detail, name='job_detail'), # URL for viewing details of one job 'pk'stands for(Primary Key)
              path('job/<int:pk>/edit/', views.edit_job, name='edit_job'), # URL for editing a job
+             path('analytics/', views.analytics_dashboard, name="analytics"),
             ]

@@ -1,5 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404 #render() combines a template with context data and returns an HTML response to the browser
 from django.db.models import Q #Imports Django’s Q object, which allows combining multiple filter conditions with [OR] logic
+from django.db.models import Count # useful for aggregating totals like how many jobs per status
+from plotly.offline import plot
+import plotly.graph_objs as go
 from .models import JobApplication
 from .forms import AddJobForm
 from django.contrib import messages
@@ -68,4 +71,53 @@ def edit_job(request, pk):
     else:
         form = AddJobForm(instance=job)  # If GET request, pre-fill the form with the existing job's data
     return render(request, 'tracker/edit_job.html', {'form': form})
+
+def analytics_dashboard(request):
+#values('status'): Creates a queryset grouped by the status field
+#annotate(count=Count('status')): Adds a count field with how many times each status appears
+    status_counts=JobApplication.objects.values('status').annotate(count=Count('status'))
+
+    statuses=[entry['status'] for entry in status_counts]
+    counts=[entry['count'] for entry in status_counts]
+
+
+    bar_chart=go.Bar(x=statuses, y=counts, marker_color='indigo')
+    layout=go.Layout(title="Job Application by Status",
+                     xaxis=dict(title='Status'),
+                     yaxis=dict(title="Count"))
+    
+#Combines the chart data (bar_chart) with layout to make a full Plotly figure object
+    fig=go.Figure(data=[bar_chart], layout=layout)
+
+#Converts the chart to a self-contained HTML <div> that can be embedded in Django template
+    chart_div=plot(fig, output_type='div')
+
+# Pie Chart
+    pie_chart = go.Pie(labels=statuses, values=counts, hole=0.3)
+    pie_layout = go.Layout(title='Status Distribution (Pie Chart)')
+    pie_fig = go.Figure(data=[pie_chart], layout=pie_layout)
+    pie_chart_div = plot(pie_fig, output_type='div')  # Embed pie chart as HTML <div>
+
+
+# line Chart
+    date_counts = JobApplication.objects.values('application_date').annotate(count=Count('id')).order_by('application_date')
+    dates = [entry['application_date'].strftime('%Y-%m-%d') for entry in date_counts]
+    date_counts_list = [entry['count'] for entry in date_counts]
+
+    line_chart = go.Scatter(x=dates, y=date_counts_list, mode='lines+markers', line=dict(color='green'))
+    line_layout = go.Layout(title="Applications Over Time",
+                            xaxis=dict(title="Date"),
+                            yaxis=dict(title="Number of Applications"))
+    line_fig = go.Figure(data=[line_chart], layout=line_layout)
+    line_div = plot(line_fig, output_type='div')
+
+    return render(request, 'tracker/analytics.html', {
+        'chart_div': chart_div,
+        'pie_chart_div': pie_chart_div,
+        'line_chart_div': line_div
+    })
+
+
+
+    
 

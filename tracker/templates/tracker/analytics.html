@@ -1,0 +1,19 @@
+{% extends "tracker/base.html" %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+  <h3 class="mb-4">Job Application Analytics</h3>
+  <div>
+    {{ chart_div|safe }}
+  </div>
+
+  <div>
+    <h3>Pie Chart</h3>
+{{ pie_chart_div|safe }}
+  </div>
+
+  <div>
+    <h2>Applications Over Time</h2>
+{{ line_chart_div|safe }}
+  </div>
+{% endblock %}

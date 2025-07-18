@@ -4,7 +4,7 @@ from .models import JobApplication
 class AddJobForm(forms.ModelForm):
     class Meta: #Meta is a special inner class used to define metadata 
         model=JobApplication
-        fields=['company_name', 'position', 'application_date', 'status']
+        fields=['company_name', 'position', 'application_date', 'status','resume']
         widgets = {
             'company_name': forms.TextInput(attrs={ 
                 'class': 'form-control', #Gives a clean input field style via Bootstrap
@@ -23,6 +23,7 @@ class AddJobForm(forms.ModelForm):
                 'class': 'form-select',
                 'required': True
             }),
+            'resume': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
 #identify duplicate entries at the time of adding jobs and neglecting it

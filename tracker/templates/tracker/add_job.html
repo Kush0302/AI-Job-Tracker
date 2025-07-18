@@ -5,7 +5,9 @@
 {% block content %}
   <h2 class="mb-4">Add New Job</h2>
 
-  <form method="POST">
+<!--enctype="multipart/form-data" is required to handle file uploads in HTML forms without it, 
+the uploaded file won't be sent to the server-->
+  <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
     {% load widget_tweaks %}
 
@@ -29,7 +31,13 @@
       {{ form.status|add_class:"form-select" }}
     </div>
 
-    <button type="submit" class="btn btn-success">Save Job</button>
+    <div class="mb-3">
+      <label for="id_resume" class="form-label">Resume</label>
+      {{ form.resume|add_class:"form-control" }}
+    </div>
+
+    <button type="submit" class="btn btn-success">Submit</button>
+    
   </form>
 
   <a href="{% url 'job_list' %}" class="btn btn-link mt-3">← Back to Job List</a>

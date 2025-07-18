@@ -42,7 +42,7 @@ def job_list(request): #request is a built-in object that represents the HTTP re
 
 def add_job(request):
     if request.method=='POST':
-        form=AddJobForm(request.POST)
+        form=AddJobForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, "✅ Job added successfully")

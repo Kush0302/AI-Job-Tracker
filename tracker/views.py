@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 from .models import JobApplication
 from .forms import AddJobForm
 from django.contrib import messages
+from django.http import JsonResponse
 
 def job_list(request): #request is a built-in object that represents the HTTP request sent by the browser
     status_filter=request.GET.get('status')
@@ -117,7 +118,8 @@ def analytics_dashboard(request):
         'line_chart_div': line_div
     })
 
+def get_resume_feedback(request):
+    #MOCK FEEDBACK (replace this with your test prompt or dynamic resume_text)
+    feedback = "✅ Clarity: Overall resume is clear, but consider simplifying job descriptions.\n\n✅ Formatting: Use consistent bullet points and align dates to the right.\n\n✅ Relevance: Highlight technical skills like Python, Django, and SQL earlier in the resume."
 
-
-    
-
+    return JsonResponse({"feedback": feedback}) 

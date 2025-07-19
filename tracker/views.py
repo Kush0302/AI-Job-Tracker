@@ -119,7 +119,7 @@ def analytics_dashboard(request):
     })
 
 def get_resume_feedback(request):
-    #MOCK FEEDBACK (replace this with your test prompt or dynamic resume_text)
+    #MOCK FEEDBACK 
     feedback = "✅ Clarity: Overall resume is clear, but consider simplifying job descriptions.\n\n✅ Formatting: Use consistent bullet points and align dates to the right.\n\n✅ Relevance: Highlight technical skills like Python, Django, and SQL earlier in the resume."
 
     return JsonResponse({"feedback": feedback}) 

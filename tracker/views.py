@@ -7,6 +7,11 @@ from .models import JobApplication
 from .forms import AddJobForm
 from django.contrib import messages
 from django.http import JsonResponse
+import openai
+from django.conf import settings
+from dotenv import load_dotenv
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 def job_list(request): #request is a built-in object that represents the HTTP request sent by the browser
     status_filter=request.GET.get('status')
@@ -118,8 +123,46 @@ def analytics_dashboard(request):
         'line_chart_div': line_div
     })
 
-def get_resume_feedback(request):
-    #MOCK FEEDBACK 
-    feedback = "✅ Clarity: Overall resume is clear, but consider simplifying job descriptions.\n\n✅ Formatting: Use consistent bullet points and align dates to the right.\n\n✅ Relevance: Highlight technical skills like Python, Django, and SQL earlier in the resume."
+load_dotenv()
 
-    return JsonResponse({"feedback": feedback}) 
+@csrf_exempt
+def get_resume_feedback(request):
+    print("METHOD:", request.method)
+    if request.method != "POST":
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    try:
+        body = json.loads(request.body.decode("utf-8"))
+        resume_text = body.get("resume_text", "").strip()
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    if not resume_text:
+        return JsonResponse({'error': 'resume_text is required'}, status=400)
+
+    prompt = f"""
+    You are an expert career coach and recruiter.
+
+    Please review the following resume text and give concise feedback on improvements related to clarity, formatting, and relevance to technical roles.
+
+    Resume:
+    {resume_text}
+    
+    Be brief and actionable.
+    """
+
+    openai.api_key = settings.OPENROUTER_API_KEY
+    openai.api_base = "https://openrouter.ai/api/v1"
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=300,
+            temperature=0.7,
+        )
+        feedback = response["choices"][0]["message"]["content"]
+        return JsonResponse({'feedback': feedback})
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

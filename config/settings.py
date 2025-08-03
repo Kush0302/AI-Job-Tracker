@@ -33,6 +33,9 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = ["localhost","127.0.0.1"]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React dev server
+]
 
 
 # Application definition
@@ -46,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tracker',
     'widget_tweaks', #'tracker' Register the model, Allows migrations to run, Connects admin, views, and templates
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'

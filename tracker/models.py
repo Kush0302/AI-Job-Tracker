@@ -6,12 +6,14 @@ class JobApplication(models.Model):
         ('Interview', 'Interview'),
         ('Offer', 'Offer'),
         ('Rejected', 'Rejected'),
+        ('Feedback', 'Feedback'),
     ]
 
     company_name=models.CharField(max_length=100) # Creates a column for the company name.
     position=models.CharField(max_length=100) # this will store the job title or position you applied for.
     application_date=models.DateField() # It accepts a date in YYYY-MM-DD format.
     status=models.CharField(max_length=20, choices=STATUS_CHOICES) # choices=STATUS_CHOICES ensures only valid values can be saved.
+    feedback=models.TextField(blank=True, null=True)
 
 #FileField: Used for uploading files
     resume=models.FileField(upload_to='resumes/', blank=True, null=True)

@@ -30,7 +30,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ["localhost","127.0.0.1"]
 CORS_ALLOWED_ORIGINS = [
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'tracker',
     'widget_tweaks', #'tracker' Register the model, Allows migrations to run, Connects admin, views, and templates
     'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

@@ -12,6 +12,14 @@ from django.conf import settings
 from dotenv import load_dotenv
 from django.views.decorators.csrf import csrf_exempt
 import json
+from rest_framework import generics
+from .serializers import JobApplicationSerializer
+from tracker.models import JobApplication
+
+class JobApplicationListCreateView(generics.ListCreateAPIView):
+    queryset=JobApplication.objects.all()
+    serializer_class=JobApplicationSerializer
+
 
 def job_list(request): #request is a built-in object that represents the HTTP request sent by the browser
     status_filter=request.GET.get('status')

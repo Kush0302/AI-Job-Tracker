@@ -8,3 +8,8 @@ db.sqlite3
 .vscode/
 .env
 /media/
+
+*.pyo
+*.pyd
+*.sqlite3
+*.pot

@@ -50,7 +50,7 @@ function App() {
     <div className="App">
       <h1>AI Resume Feedback</h1>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "20px"}}>
         <button onClick={() => setView("manual")} disabled={view === "manual"}>
           Manual Feedback
         </button>

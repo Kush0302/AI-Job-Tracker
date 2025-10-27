@@ -142,22 +142,33 @@ def get_resume_feedback(request):
     try:
         body = json.loads(request.body.decode("utf-8"))
         resume_text = body.get("resume_text", "").strip()
+        job_post = body.get("job_post", "").strip()  # ✅ Added this line
     except Exception:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
     if not resume_text:
         return JsonResponse({'error': 'resume_text is required'}, status=400)
 
+    if not job_post:
+        job_post = "General job role"  # ✅ Optional fallback
+
     prompt = f"""
-    You are an expert career coach and recruiter.
+   You are an AI resume reviewer. Evaluate how well this resume fits the following job post.
+   Give specific, actionable feedback on missing skills, keywords, and phrasing improvements.
 
-    Please review the following resume text and give concise feedback on improvements related to clarity, formatting, and relevance to technical roles.
+   Job Post:
+   {job_post}
 
-    Resume:
-    {resume_text}
-    
-    Be brief and actionable.
-    """
+   Resume:
+   {resume_text}
+
+  Format your response as:
+  - Overall Match (%)
+  - Strengths
+  - Areas to Improve
+  - Recommended Additions
+  Be concise and actionable.
+  """
 
     openai.api_key = settings.OPENROUTER_API_KEY
     openai.api_base = "https://openrouter.ai/api/v1"

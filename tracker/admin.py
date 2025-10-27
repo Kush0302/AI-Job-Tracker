@@ -39,7 +39,6 @@ Resume:
                 "Authorization": f"Bearer {OPENROUTER_API_KEY}",
                 "Content-Type": "application/json"
             }
-
             data = {
                 "model": "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
                 "messages": [{"role": "user", "content": prompt}],

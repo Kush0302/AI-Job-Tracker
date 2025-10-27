@@ -7,6 +7,7 @@ function App() {
 
   // For manual resume feedback
   const [resumeText, setResumeText] = useState("");
+  const [jobPost, setJobPost] = useState("");
   const [feedback, setFeedback] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -34,12 +35,24 @@ function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ resume_text: resumeText }),
+        // ✅ include both resume_text and job_post
+        body: JSON.stringify({
+          resume_text: resumeText,
+          job_post: jobPost,
+        }),
       });
 
       const data = await response.json();
-      setFeedback(data.feedback || "No feedback received");
+
+      // ✅ Adjust to handle API structure
+      const aiFeedback =
+        data?.choices?.[0]?.message?.content ||
+        data?.feedback ||
+        "No feedback received.";
+
+      setFeedback(aiFeedback);
     } catch (error) {
+      console.error(error);
       setFeedback("Error submitting resume. Please try again.");
     } finally {
       setLoading(false);
@@ -50,7 +63,14 @@ function App() {
     <div className="App">
       <h1>AI Resume Feedback</h1>
 
-      <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "20px"}}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "12px",
+          marginBottom: "20px",
+        }}
+      >
         <button onClick={() => setView("manual")} disabled={view === "manual"}>
           Manual Feedback
         </button>
@@ -71,6 +91,14 @@ function App() {
               required
             ></textarea>
             <br />
+            <textarea
+              rows="5"
+              cols="80"
+              placeholder="Paste job description or position here..."
+              value={jobPost}
+              onChange={(e) => setJobPost(e.target.value)}
+            ></textarea>
+            <br />
             <button type="submit" disabled={loading}>
               {loading ? "Analyzing..." : "Get Feedback"}
             </button>
@@ -79,7 +107,7 @@ function App() {
           {feedback && (
             <div style={{ marginTop: "20px", whiteSpace: "pre-wrap" }}>
               <h2>AI Feedback</h2>
-              <p>{feedback}</p>
+              <ReactMarkdown>{feedback}</ReactMarkdown>
             </div>
           )}
         </>
@@ -99,15 +127,25 @@ function App() {
                   padding: "15px",
                 }}
               >
-                <h3>{job.position} @ {job.company_name}</h3>
+                <h3>
+                  {job.position} @ {job.company_name}
+                </h3>
                 <p>Status: {job.status}</p>
 
                 {job.application_date && (
-                  <p><strong>Applied on:</strong> {job.application_date}</p>
+                  <p>
+                    <strong>Applied on:</strong> {job.application_date}
+                  </p>
                 )}
 
                 {job.feedback && (
-                  <div style={{ background: "#f9f9f9", padding: "10px", marginTop: "10px" }}>
+                  <div
+                    style={{
+                      background: "#f9f9f9",
+                      padding: "10px",
+                      marginTop: "10px",
+                    }}
+                  >
                     <h4>Resume Feedback</h4>
                     <ReactMarkdown>{job.feedback}</ReactMarkdown>
                   </div>
@@ -116,7 +154,11 @@ function App() {
                 {job.resume && (
                   <p>
                     <strong>Resume:</strong>{" "}
-                    <a href={job.resume} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={job.resume}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Download
                     </a>
                   </p>

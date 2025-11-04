@@ -37,7 +37,7 @@ def job_list(request): #request is a built-in object that represents the HTTP re
     if search_query:
         jobs = jobs.filter(
         Q(company_name__icontains=search_query) |
-        Q(position__icontains=search_query) #We use  __icontains to enable partial and case-insensitive matching
+        Q(position__icontains=search_query) #use  __icontains to enable partial and case-insensitive matching
     )
 
 

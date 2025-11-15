@@ -19,13 +19,18 @@ from django.urls import path, include # include lets you import URLs from anothe
 from tracker import views # import your job_list view
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+from tracker.views import register_user
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.job_list, name='home'), # show job list at root URL
     path('jobs/', include('tracker.urls')), #'' means "for the root URL and everything under it"
     path('', include('tracker.urls')), 
-    path("api/", include("tracker.urls")),  
+    path("api/", include("tracker.urls")), 
+    path("accounts/login/", auth_views.LoginView.as_view(template_name="login.html")), 
+    path('accounts/logout/', auth_views.LogoutView.as_view()),
+    path('accounts/signup/', register_user, name="signup"),
 ]
 
 if settings.DEBUG:

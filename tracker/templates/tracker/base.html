@@ -12,6 +12,15 @@
     <div>
       <a class="nav-link text-light" href="{% url 'analytics' %}">📊Analytics</a>
       <a class="nav-link text-light" href="{% url 'add_job' %}"> ➕Add Job</a> <!--{% url 'add_job' %} ensures Django looks up the correct path using its name-->
+      {% if user.is_authenticated %}
+      <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-light btn-sm">
+            Logout
+        </button>
+</form>
+
+      {% endif %}
     </div>
   </div>
 </nav>

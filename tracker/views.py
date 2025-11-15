@@ -15,12 +15,15 @@ import json
 from rest_framework import generics
 from .serializers import JobApplicationSerializer
 from tracker.models import JobApplication
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 
 class JobApplicationListCreateView(generics.ListCreateAPIView):
     queryset=JobApplication.objects.all()
     serializer_class=JobApplicationSerializer
 
-
+@login_required
 def job_list(request): #request is a built-in object that represents the HTTP request sent by the browser
     status_filter=request.GET.get('status')
     sort_by=request.GET.get('sort', 'application_date')  #default sorting
@@ -54,6 +57,7 @@ def job_list(request): #request is a built-in object that represents the HTTP re
          'status_options' :status_options,
     })
 
+@login_required
 def add_job(request):
     if request.method=='POST':
         form=AddJobForm(request.POST, request.FILES)
@@ -68,12 +72,14 @@ def add_job(request):
 
     return render(request, 'tracker/add_job.html', {'form': form})
 
+@login_required
 def job_detail(request, pk):
 # Tries to get the job with the given ID. If not found, shows a 404 error page.
     job = get_object_or_404(JobApplication, pk=pk)
  # Renders the job_detail.html template and passes the job data to it
     return render(request, 'tracker/job_detail.html', {'job': job})
 
+@login_required
 def edit_job(request, pk):
     job = get_object_or_404(JobApplication, pk=pk)
     if request.method == 'POST':
@@ -86,6 +92,15 @@ def edit_job(request, pk):
         form = AddJobForm(instance=job)  # If GET request, pre-fill the form with the existing job's data
     return render(request, 'tracker/edit_job.html', {'form': form})
 
+@login_required
+def delete_job(request,pk):
+    job=get_object_or_404(JobApplication, pk=pk)
+    if request.method=='POST':
+        job.delete()
+        return redirect('job_list')
+    return render(request, 'tracker/delete_job.html', {'job':job})
+
+@login_required
 def analytics_dashboard(request):
 #values('status'): Creates a queryset grouped by the status field
 #annotate(count=Count('status')): Adds a count field with how many times each status appears
@@ -130,6 +145,18 @@ def analytics_dashboard(request):
         'pie_chart_div': pie_chart_div,
         'line_chart_div': line_div
     })
+
+def register_user(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()   # create user
+            login(request, user) # log them in automatically
+            return redirect("job_list")
+    else:
+        form = UserCreationForm()
+
+    return render(request, "signup.html", {"form": form})
 
 load_dotenv()
 

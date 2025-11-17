@@ -1,10 +1,48 @@
 {% extends 'tracker/base.html' %}
 
 {% block content %}
-  <h2>Delete Job</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Save</button>
-  </form>
+
+<style>
+.job-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.job-btn {
+  padding: 10px 20px;
+  width: 140px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn-edit {
+  background: #f1b400;
+  color: #000;
+}
+
+.btn-delete {
+  background: #d83434;
+  color: #fff;
+}
+</style>
+
+<h2>Delete Job</h2>
+
+<p>Are you sure you want to delete this job: <strong>{{ job.position }}</strong> at <strong>{{ job.company_name }}</strong>?</p>
+
+<form method="post">
+  {% csrf_token %}
+  
+  <!-- Buttons row -->
+  <div class="job-actions">
+      <button type="submit" class="job-btn btn-delete">Delete Job</button>
+      <a href="{% url 'job_list' %}" class="job-btn btn-edit">Cancel</a>
+  </div>
+</form>
+
 {% endblock %}

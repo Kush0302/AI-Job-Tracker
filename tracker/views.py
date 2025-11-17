@@ -18,19 +18,29 @@ from tracker.models import JobApplication
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 
 class JobApplicationListCreateView(generics.ListCreateAPIView):
-    queryset=JobApplication.objects.all()
     serializer_class=JobApplicationSerializer
+    permission_classes=[IsAuthenticated]
+
+    def get_queryset(self):
+        return JobApplication.objects.filter(user=self.request.user) #Return only the jobs of the logged-in user
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user) #Auto-assign the logged-in user when creating a job
 
 @login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def job_list(request): #request is a built-in object that represents the HTTP request sent by the browser
     status_filter=request.GET.get('status')
     sort_by=request.GET.get('sort', 'application_date')  #default sorting
     search_query=request.GET.get('search', '')
 
 
-    jobs=JobApplication.objects.all()
+    jobs=JobApplication.objects.filter(user=request.user)
 
 #If a specific status is selected (not "All"), the queryset is filtered to show only jobs with that status
     if status_filter and status_filter!='All':
@@ -58,21 +68,27 @@ def job_list(request): #request is a built-in object that represents the HTTP re
     })
 
 @login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def add_job(request):
     if request.method=='POST':
         form=AddJobForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, "✅ Job added successfully")
+            job=form.save(commit=False)
+            job.user=request.user #Attached logged-in user
+            job.save()
+            messages.success(request, "Job added successfully")
             return redirect('job_list') #Redirect to job list after saving
         else:
-            print("❌ Form is invalid:", form.errors)
+            print("Form is invalid:", form.errors)
     else:
         form=AddJobForm()
 
     return render(request, 'tracker/add_job.html', {'form': form})
 
 @login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def job_detail(request, pk):
 # Tries to get the job with the given ID. If not found, shows a 404 error page.
     job = get_object_or_404(JobApplication, pk=pk)
@@ -80,11 +96,13 @@ def job_detail(request, pk):
     return render(request, 'tracker/job_detail.html', {'job': job})
 
 @login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def edit_job(request, pk):
-    job = get_object_or_404(JobApplication, pk=pk)
+    job = get_object_or_404(JobApplication, pk=pk, user=request.user) # Ensures ONLY the owner can edit
     if request.method == 'POST':
 # Populate form with submitted data and link it to the existing job
-        form = AddJobForm(request.POST, instance=job)
+        form = AddJobForm(request.POST,request.FILES, instance=job)
         if form.is_valid():
             form.save()
             return redirect('job_detail', pk=job.pk)
@@ -93,21 +111,26 @@ def edit_job(request, pk):
     return render(request, 'tracker/edit_job.html', {'form': form})
 
 @login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def delete_job(request,pk):
-    job=get_object_or_404(JobApplication, pk=pk)
+    job=get_object_or_404(JobApplication, pk=pk, user=request.user)
     if request.method=='POST':
         job.delete()
         return redirect('job_list')
     return render(request, 'tracker/delete_job.html', {'job':job})
 
 @login_required
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def analytics_dashboard(request):
 #values('status'): Creates a queryset grouped by the status field
 #annotate(count=Count('status')): Adds a count field with how many times each status appears
-    status_counts=JobApplication.objects.values('status').annotate(count=Count('status'))
+    user_jobs=JobApplication.objects.filter(user=request.user)
 
-    statuses=[entry['status'] for entry in status_counts]
-    counts=[entry['count'] for entry in status_counts]
+    status_counts=user_jobs.values('status').annotate(count=Count('status'))
+    statuses = [entry['status'] for entry in status_counts]
+    counts = [entry['count'] for entry in status_counts]
 
 
     bar_chart=go.Bar(x=statuses, y=counts, marker_color='indigo')
@@ -129,7 +152,7 @@ def analytics_dashboard(request):
 
 
 # line Chart
-    date_counts = JobApplication.objects.values('application_date').annotate(count=Count('id')).order_by('application_date')
+    date_counts = user_jobs.values('application_date').annotate(count=Count('id')).order_by('application_date')
     dates = [entry['application_date'].strftime('%Y-%m-%d') for entry in date_counts]
     date_counts_list = [entry['count'] for entry in date_counts]
 

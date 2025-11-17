@@ -3,6 +3,13 @@ import "./App.css";
 import ReactMarkdown from "react-markdown";
 
 function App() {
+   // Auth
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    !!localStorage.getItem("access_token")
+  );
+
   const [view, setView] = useState("manual"); // manual or jobs
 
   // For manual resume feedback
@@ -10,20 +17,78 @@ function App() {
   const [jobPost, setJobPost] = useState("");
   const [feedback, setFeedback] = useState("");
   const [loading, setLoading] = useState(false);
+  
 
   // For job applications
   const [jobs, setJobs] = useState([]);
 
+// Handle Login
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/auth/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username,password }),
+      });
+
+      if (!res.ok) throw new Error("Invalid credentials");
+
+      const data = await res.json();
+      localStorage.setItem("access_token", data.access);
+      localStorage.setItem("refresh_token", data.refresh);
+      setIsLoggedIn(true);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // Handle Logout 
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    setIsLoggedIn(false);
+  };
+
   // Fetch job data from Django
   useEffect(() => {
-    if (view === "jobs") {
-      fetch("http://127.0.0.1:8000/api/job-applications/")
-        .then((res) => res.json())
-        .then((data) => setJobs(data))
-        .catch((err) => console.error("Error loading jobs:", err));
-    }
-  }, [view]);
+  if (view === "jobs" && isLoggedIn) {
 
+    console.log("isLoggedIn:", isLoggedIn);
+    console.log(" Token from localStorage:", localStorage.getItem("access_token"));
+
+    const fetchJobs = async () => {
+      try {
+        setJobs([]); // Clear previous jobs
+
+        const token = localStorage.getItem("access_token");
+
+        const res = await fetch("http://127.0.0.1:8000/api/job-applications/", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.status === 401) throw new Error("Unauthorized! Please login.");
+
+        const data = await res.json();
+        console.log("Jobs fetched:", data); // shows EXACT response from backend
+        setJobs(data);
+
+      } catch (err) {
+        console.error("Error loading jobs:", err);
+        setJobs([]); // Clear jobs on error
+      }
+    };
+
+    fetchJobs();
+  }
+}, [view, isLoggedIn]);
+
+
+
+  //  Submit Manual Resume Feedback
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -44,7 +109,7 @@ function App() {
 
       const data = await response.json();
 
-      // ✅ Adjust to handle API structure
+      // Adjust to handle API structure
       const aiFeedback =
         data?.choices?.[0]?.message?.content ||
         data?.feedback ||
@@ -59,9 +124,47 @@ function App() {
     }
   };
 
+  // Render Login if not logged in 
+  if (!isLoggedIn) {
+    return (
+      <div className="App">
+        <h2>Login</h2>
+        <form onSubmit={handleLogin}>
+         
+          <div style={{ marginBottom: "10px" }}>
+            <label>Username:</label>
+            <input
+              type="text"
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <label>Password:</label>
+            <input
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    );
+  }
+
+// Main App
   return (
     <div className="App">
       <h1>AI Resume Feedback</h1>
+      <button onClick={handleLogout} style={{ float: "right" }}>
+        Logout
+      </button>
 
       <div
         style={{
@@ -69,6 +172,7 @@ function App() {
           justifyContent: "center",
           gap: "12px",
           marginBottom: "20px",
+          marginTop: "40px",
         }}
       >
         <button onClick={() => setView("manual")} disabled={view === "manual"}>

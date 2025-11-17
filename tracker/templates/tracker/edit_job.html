@@ -1,10 +1,60 @@
 {% extends 'tracker/base.html' %}
 
 {% block content %}
-  <h2>Edit Job</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Save</button>
-  </form>
+
+<style>
+.job-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.job-btn {
+  padding: 10px 20px;
+  width: 140px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn-save {
+  background: #2ecc71;
+  color: #fff;
+}
+
+.btn-delete {
+  background: #d83434;
+  color: #fff;
+}
+
+.btn-cancel {
+  background: #f1b400;
+  color: #000;
+}
+</style>
+
+<h2>Edit Job</h2>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+  <div class="job-actions">
+      <button type="submit" class="job-btn btn-save">Save</button>
+
+      <!-- Delete button (go to delete page) -->
+      <a href="{% url 'delete_job' form.instance.id%}" class="job-btn btn-delete">
+          Delete
+      </a>
+
+      <!-- Cancel button -->
+      <a href="{% url 'job_list' %}" class="job-btn btn-cancel">
+          Cancel
+      </a>
+  </div>
+</form>
+
 {% endblock %}

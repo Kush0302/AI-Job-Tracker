@@ -21,6 +21,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from tracker.views import register_user
+from rest_framework_simplejwt.views import(TokenObtainPairView, TokenRefreshView,)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,6 +32,8 @@ urlpatterns = [
     path("accounts/login/", auth_views.LoginView.as_view(template_name="login.html")), 
     path('accounts/logout/', auth_views.LogoutView.as_view()),
     path('accounts/signup/', register_user, name="signup"),
+    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
 if settings.DEBUG:

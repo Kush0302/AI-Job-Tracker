@@ -10,5 +10,5 @@
     <li><strong>Notes:</strong> {{ job.notes }}</li>
   </ul>
   <a href="{% url 'edit_job' job.pk %}" class="btn btn-warning">Edit Job</a>
-  <a href="{% url 'delete_job' job.id %}" class="btn btn-danger mt-2">Delete Job</a>
+  <a href="{% url 'delete_job' job.id %}" class="btn btn-danger">Delete Job</a>
 {% endblock %}

@@ -200,7 +200,7 @@ def get_resume_feedback(request):
         return JsonResponse({'error': 'resume_text is required'}, status=400)
 
     if not job_post:
-        job_post = "General job role"  # ✅ Optional fallback
+        job_post = "General job role"  # Optional fallback
 
     prompt = f"""
    You are an AI resume reviewer. Evaluate how well this resume fits the following job post.

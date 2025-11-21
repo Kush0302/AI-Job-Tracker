@@ -19,12 +19,20 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 15px;
+        }
         input {
             width: 100%;
             padding: 10px;
-            margin-bottom: 15px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            box-sizing: border-box; /* Ensures padding doesn't break width */
+        }
+        input.error {
+            border-color: red;
+            background-color: #fff0f0;
         }
         button {
             width: 100%;
@@ -35,9 +43,29 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 10px;
         }
         button:hover {
             background: #1e7e34;
+        }
+        /* Error Message Styling */
+        .error-list {
+            color: #d9534f;
+            font-size: 12px;
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+            text-align: left;
+        }
+        .non-field-errors {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+            font-size: 14px;
+            text-align: center;
         }
         .login-link {
             text-align: center;
@@ -66,16 +94,47 @@
     <form method="POST">
         {% csrf_token %}
 
-        <input type="text" name="username" placeholder="Choose a username" required>
-        <input type="password" name="password1" placeholder="Create password" required>
-        <input type="password" name="password2" placeholder="Confirm password" required>
+        <!--DISPLAY GENERIC ERRORS (e.g. "Passwords didn't match") -->
+        {% if form.non_field_errors %}
+            <div class="non-field-errors">
+                {% for error in form.non_field_errors %}
+                    <p style="margin: 0;">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- RENDER FORM FIELDS WITH ERRORS -->
+        {% for field in form %}
+            <div class="form-group">
+                <!-- Input Field -->
+                <input 
+                    type="{{ field.field.widget.input_type }}" 
+                    name="{{ field.name }}" 
+                    placeholder="{{ field.label }}" 
+                    class="{% if field.errors %}error{% endif %}"
+                    required
+                >
+                
+                <!-- Specific Error for this field (e.g. "Password too short") -->
+                {% if field.errors %}
+                    <ul class="error-list">
+                        {% for error in field.errors %}
+                            <li> {{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                <!-- Help text (e.g. "Password rules") -->
+                {% if field.help_text %}
+                    <small style="color: #666; font-size: 11px; display: block; margin-top: 3px;">
+                        {{ field.help_text }}
+                    </small>
+                {% endif %}
+            </div>
+        {% endfor %} 
 
         <button type="submit">Sign Up</button>
     </form>
-
-    {% if form.errors %}
-        <p style="color:red; text-align:center;">Please correct the errors above.</p>
-    {% endif %}
 
     <p class="login-link">
         Already have an account?

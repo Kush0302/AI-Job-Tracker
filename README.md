@@ -61,8 +61,6 @@ npm run dev
 
 # 🎯 Future Goals
 
-Convert the entire job tracker frontend into React:
-
 Replace Django templates/admin with React UI consuming Django REST API (via Django REST Framework).
 
 Add authentication for multiple users.

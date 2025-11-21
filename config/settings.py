@@ -38,9 +38,23 @@ if RENDER_EXTERNAL_HOSTNAME:
 
 OPENROUTER_API_KEY=os.getenv("OPENROUTER_API_KEY")
 
+# CORS SETTINGS
+CORS_ALLOWED_CREDENTIALS = True
+
+# Allow Localhost
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev server
+    "http://localhost:3000",
     "http://127.0.0.1:3000",
+]
+
+#Add the specific Vercel URL from Render Environment
+if 'FRONTEND_URL' in os.environ:
+    CORS_ALLOWED_ORIGINS.append(os.environ['FRONTEND_URL'])
+
+# Allow ALL Vercel Subdomains (Recommended fallback)
+# This ensures vercel app works automatically
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
 ]
 
 

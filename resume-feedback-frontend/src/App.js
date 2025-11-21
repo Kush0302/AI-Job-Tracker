@@ -3,7 +3,12 @@ import "./App.css";
 import ReactMarkdown from "react-markdown";
 
 function App() {
-   // Auth
+  
+  // This line checks if we are in Production or Local
+  
+  const API_BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+
+  // Auth State
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(
@@ -17,19 +22,21 @@ function App() {
   const [jobPost, setJobPost] = useState("");
   const [feedback, setFeedback] = useState("");
   const [loading, setLoading] = useState(false);
-  
 
   // For job applications
   const [jobs, setJobs] = useState([]);
 
-// Handle Login
+ 
+  // HANDLE LOGIN
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/auth/login/", {
+      // UPDATED: Uses API_BASE_URL variable
+      const res = await fetch(`${API_BASE_URL}/api/auth/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username,password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (!res.ok) throw new Error("Invalid credentials");
@@ -43,64 +50,69 @@ function App() {
     }
   };
 
-  // Handle Logout 
+
+  // HANDLE LOGOUT
+
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     setIsLoggedIn(false);
   };
 
-  // Fetch job data from Django
+  // FETCH JOBS (Protected Route)
+
   useEffect(() => {
-  if (view === "jobs" && isLoggedIn) {
+    if (view === "jobs" && isLoggedIn) {
+      console.log("Fetching jobs from:", `${API_BASE_URL}/api/job-applications/`);
 
-    console.log("isLoggedIn:", isLoggedIn);
-    console.log(" Token from localStorage:", localStorage.getItem("access_token"));
+      const fetchJobs = async () => {
+        try {
+          setJobs([]); // Clear previous jobs
 
-    const fetchJobs = async () => {
-      try {
-        setJobs([]); // Clear previous jobs
+          const token = localStorage.getItem("access_token");
 
-        const token = localStorage.getItem("access_token");
+          // UPDATED: Uses API_BASE_URL variable
+          const res = await fetch(`${API_BASE_URL}/api/job-applications/`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-        const res = await fetch("http://127.0.0.1:8000/api/job-applications/", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+          if (res.status === 401) {
+            // Auto-logout if token expired
+            handleLogout();
+            throw new Error("Unauthorized! Please login again.");
+          }
 
-        if (res.status === 401) throw new Error("Unauthorized! Please login.");
+          const data = await res.json();
+          console.log("Jobs fetched:", data);
+          setJobs(data);
+        } catch (err) {
+          console.error("Error loading jobs:", err);
+          setJobs([]);
+        }
+      };
 
-        const data = await res.json();
-        console.log("Jobs fetched:", data); // shows EXACT response from backend
-        setJobs(data);
-
-      } catch (err) {
-        console.error("Error loading jobs:", err);
-        setJobs([]); // Clear jobs on error
-      }
-    };
-
-    fetchJobs();
-  }
-}, [view, isLoggedIn]);
+      fetchJobs();
+    }
+  }, [view, isLoggedIn, API_BASE_URL]); // Added API_BASE_URL to dependencies
 
 
+  // 4. SUBMIT RESUME FEEDBACK
 
-  //  Submit Manual Resume Feedback
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setFeedback("");
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/get-resume-feedback/", {
+      //UPDATED: Uses API_BASE_URL variable
+      const response = await fetch(`${API_BASE_URL}/api/get-resume-feedback/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        // ✅ include both resume_text and job_post
         body: JSON.stringify({
           resume_text: resumeText,
           job_post: jobPost,
@@ -109,7 +121,6 @@ function App() {
 
       const data = await response.json();
 
-      // Adjust to handle API structure
       const aiFeedback =
         data?.choices?.[0]?.message?.content ||
         data?.feedback ||
@@ -124,13 +135,12 @@ function App() {
     }
   };
 
-  // Render Login if not logged in 
+  // RENDER: Login Screen
   if (!isLoggedIn) {
     return (
       <div className="App">
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
-         
           <div style={{ marginBottom: "10px" }}>
             <label>Username:</label>
             <input
@@ -158,7 +168,7 @@ function App() {
     );
   }
 
-// Main App
+  // RENDER: Main App
   return (
     <div className="App">
       <h1>AI Resume Feedback</h1>

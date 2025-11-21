@@ -68,7 +68,7 @@ def job_list(request): #request is a built-in object that represents the HTTP re
     })
 
 @login_required
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def add_job(request):
     if request.method=='POST':
@@ -87,7 +87,7 @@ def add_job(request):
     return render(request, 'tracker/add_job.html', {'form': form})
 
 @login_required
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def job_detail(request, pk):
 # Tries to get the job with the given ID. If not found, shows a 404 error page.
@@ -96,7 +96,7 @@ def job_detail(request, pk):
     return render(request, 'tracker/job_detail.html', {'job': job})
 
 @login_required
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def edit_job(request, pk):
     job = get_object_or_404(JobApplication, pk=pk, user=request.user) # Ensures ONLY the owner can edit
@@ -111,7 +111,7 @@ def edit_job(request, pk):
     return render(request, 'tracker/edit_job.html', {'form': form})
 
 @login_required
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def delete_job(request,pk):
     job=get_object_or_404(JobApplication, pk=pk, user=request.user)
@@ -121,7 +121,7 @@ def delete_job(request,pk):
     return render(request, 'tracker/delete_job.html', {'job':job})
 
 @login_required
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def analytics_dashboard(request):
 #values('status'): Creates a queryset grouped by the status field

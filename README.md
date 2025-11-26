@@ -1,11 +1,11 @@
 # 📌 AI Job Tracker
 
-An **AI-powered job tracking system** built with **Django**, **FastAPI**, and **React**.  
+An **AI-powered job tracking system** built with **Django**, **Django REST Framework**, and **React**.  
 The project allows users to manage job applications and get AI-driven feedback on resumes.
 
 ---
 
-## 🚀 Features
+##  Features
 
 ### ✅ Current Features
 - **Job Tracking (Django)**
@@ -13,22 +13,23 @@ The project allows users to manage job applications and get AI-driven feedback o
   - Store company, role, status, and notes
   - Django admin panel for management  
 
-- **AI Resume Feedback (FastAPI + React)**
+- **AI Resume Feedback (Django + React)**
   - Paste/upload resume text in React frontend
-  - Sends request to FastAPI backend
+  - Sends request to Django REST API backend
   - AI model provides instant resume feedback
 
-- **Separation of Concerns**
-  - Django handles job applications
-  - FastAPI handles AI services
-  - React handles resume feedback display
+- **Architecture**
+  - **Django:** Serves as the main backend, handling database models, authentication, and business logic.
+  - **Django REST Framework (DRF):** Exposes API endpoints for the frontend to consume (Job CRUD, Auth, AI Feedback).
+  - **React**: Provides the user interface for tracking jobs and viewing resume feedback.
 
 ---
 
 ## 🛠️ Tech Stack
-- **Backend 1 (Django)** → Job application management  
-- **Backend 2 (FastAPI)** → AI resume feedback service (using Z.AI Dolphin model)  
-- **Frontend (React)** → User interface for resume feedback  
+- **Backend** → Django + Django REST Framework (Python) 
+- **Frontend** → React (JavaScript/JSX)
+- **Database** → PostgreSQL (Production) / SQLite (Development)
+- **Deployment** → Render (Backend) + Vercel (Frontend) + Neon (Database)
 
 ---
 
@@ -46,13 +47,7 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
-### 3. Backend – FastAPI
-```bash
-cd fastapi_backend
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8001
-```
-### 4. Frontend – React
+### 3. Frontend – React
 ```bash
 cd react_frontend
 npm install
@@ -61,15 +56,14 @@ npm run dev
 
 # 🎯 Future Goals
 
-Replace Django templates/admin with React UI consuming Django REST API (via Django REST Framework).
+- Automate Resume Parsing,
 
-Add authentication for multiple users.
+- Add Cloud Storage,
 
-Extend AI features:
+- Extend AI features:
 
-Job description vs resume matching
-
-Personalized career suggestions
+  - Job description vs resume matching
+  - Personalized career suggestions
 
 # 📌 Project Status
 
